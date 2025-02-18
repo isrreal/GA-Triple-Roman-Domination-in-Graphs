@@ -1,12 +1,24 @@
 #include "TripleRomanDomination.hpp"
-
+ 
 /**
- * @brief Runs the genetic algorithm and calculates the triple Roman domination number (Gamma3r).
- * 
- * Executes the genetic algorithm with predefined heuristics and computes the total sum of genes
- * in the resulting chromosome to calculate Gamma3r.
- * 
- * @return size_t The calculated triple Roman domination number.
+ * @brief Executa o algoritmo genético para o problema de Dominação Romana Tripla.
+ *
+ * Esta função configura e executa o algoritmo genético utilizando uma heurística específica para gerar 
+ * a população inicial. O objetivo é encontrar a melhor solução para o problema de Dominação Romana Tripla.
+ *
+ * @param heuristic Um valor inteiro que indica qual heurística será utilizada para gerar a população inicial.
+ *                  As heurísticas disponíveis são:
+ *                  - 1: heuristic1
+ *                  - 2: heuristic2
+ *                  - 3: heuristic3
+ *
+ * @details A função inicializa o melhor fitness do algoritmo genético como 0 e define um vetor de funções 
+ *          heurísticas que serão utilizadas para gerar as soluções iniciais. Em seguida, o algoritmo genético 
+ *          é executado com o número de gerações especificado, e a melhor solução encontrada é armazenada. 
+ *          O fitness da melhor solução é calculado como a soma dos valores dos genes do cromossomo.
+ *
+ * @note O fitness da melhor solução é armazenado na variável `genetic_algorithm_best_fitness`, e a solução 
+ *       em si é armazenada em `solution_genetic_algorithm`.
  */
  
 void TripleRomanDomination::runGeneticAlgorithm(short int heuristic) {  
@@ -26,24 +38,16 @@ void TripleRomanDomination::runGeneticAlgorithm(short int heuristic) {
     this->genetic_algorithm_best_fitness = std::accumulate(solution_genetic_algorithm.begin(), solution_genetic_algorithm.end(), 0);
 }
 
-void TripleRomanDomination::runACO(bool with_RVNS) {
-   this->aco_best_fitness = 0;
-   
-   this->ACO.run(with_RVNS);
-   
-   solution_aco = this->ACO.getBestSolution();
-
-   this->aco_best_fitness = std::accumulate(solution_aco.begin(), solution_aco.end(), 0);   
-}
-
 /**
- * @brief A heuristic function that generates an initial chromosome solution for triple Roman domination.
+ * @brief Função heurística que gera uma solução inicial de cromossomo para o problema de Dominação Romana Tripla.
+ *  
+ * Esta heurística seleciona um vértice aleatoriamente e atribui a ele o rótulo 2 (ou 3, caso o vértice seja isolado). 
+ * Em seguida, atribui rótulo 0 aos seus vizinhos e os remove do grafo auxiliar. Após a remoção, se houver vértices 
+ * isolados, eles são rotulados com 3. Como a solução produzida pode não ser viável (não seguindo as regras da Dominação 
+ * Romana Tripla), a rotina `feasibilityCheck` é chamada para corrigir eventuais erros e garantir uma solução válida.
  * 
- * This heuristic randomly selects vertices and assigns them a value of 3, while updating their neighbors 
- * with a value of 0. The adjacency list of the choosen vertex is then deleted.
- * 
- * @param  graph Object used to create the chromosome.
- * @return Chromosome Object The generated chromosome solution.
+ * @param graph Grafo utilizado para criar o cromossomo.
+ * @return Chromosome Objeto que representa a solução de cromossomo gerada.
  */
  
 Chromosome TripleRomanDomination::heuristic1(const Graph& graph) {
@@ -102,13 +106,14 @@ Chromosome TripleRomanDomination::heuristic1(const Graph& graph) {
 
 
 /**
- * @brief A second heuristic function that generates an initial chromosome solution for triple Roman domination.
+ * @brief Segunda função heurística para gerar uma solução inicial de cromossomo para o problema de Dominação Romana Tripla.
  * 
- * This heuristic selects vertices randomly and assigns them values, updating neighbors accordingly and
- * handling vertices with no neighbors by assigning a value of 2.
+ * Esta heurística utiliza um grafo auxiliar G', clone do grafo original, que terá seus vértices removidos durante as iterações. 
+ * Seleciona vértices aleatoriamente e atribui a eles o rótulo 4 (ou 3, caso o vértice seja isolado), e rótulo 0 aos seus vizinhos, 
+ * removendo-os de G'. Após a remoção, se houver vértices isolados, eles são rotulados com 3.
  * 
- * @param graph Object to the graph used to create the chromosome.
- * @return Chromosome Object The generated chromosome solution.
+ * @param graph Grafo utilizado para criar o cromossomo.
+ * @return Chromosome Objeto que representa a solução de cromossomo gerada.
  */
  
 Chromosome TripleRomanDomination::heuristic2(const Graph& graph) {
@@ -172,13 +177,14 @@ Chromosome TripleRomanDomination::heuristic2(const Graph& graph) {
 
 
 /**
- * @brief A third heuristic function that generates an initial chromosome solution for triple Roman domination.
+ * @brief Gera uma solução viável para o problema de Dominação Romana Tripla ordenando os vértices por grau decrescente.
  * 
- * This heuristic sorts vertices by degree in descending order, then selects vertices with the highest degree
- * for assignment while updating their neighbors.
+ * Esta heurística utiliza um grafo auxiliar, clone do grafo original, ordena seus vértices em ordem decrescente de grau e atribui 
+ * rótulo 4 ao i-ésimo vértice ordenado, e rótulo 0 aos seus vizinhos, removendo-os do grafo auxiliar. Após isso, a rotina 
+ * `decreaseLabels` tenta reduzir os rótulos da solução atual, visando diminuir seu peso.
  * 
- * @param graph Object to the graph used to create the chromosome.
- * @return Chromosome Object The generated chromosome solution.
+ * @param graph Grafo utilizado para criar o cromossomo.
+ * @return Chromosome Objeto que representa a solução de cromossomo gerada.
  */
  
 Chromosome TripleRomanDomination::heuristic3(const Graph& graph) {
@@ -254,18 +260,10 @@ Graph& TripleRomanDomination::getGraph() {
     return this->graph;
 }
 
-std::vector<int> TripleRomanDomination::getSolutionACO() {
-	return this->solution_aco;
-}
-
 std::vector<int> TripleRomanDomination::getSolutionGeneticAlgorithm() {
 	return this->solution_genetic_algorithm;
 }
 
 size_t TripleRomanDomination::getGeneticAlgorithmBestFitness() {
     return this->genetic_algorithm_best_fitness;
-}
-
-size_t TripleRomanDomination::getACOBestFitness() {
-    return this->aco_best_fitness;
 }

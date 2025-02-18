@@ -4,7 +4,7 @@ SRC_FOLDER=src/
 OBJ_FOLDER=obj/
 
 SOURCES= $(SRC_FOLDER)main.cpp $(SRC_FOLDER)GeneticAlgorithm.cpp $(SRC_FOLDER)Chromosome.cpp \
-         $(SRC_FOLDER)Graph.cpp $(SRC_FOLDER)TripleRomanDomination.cpp $(SRC_FOLDER)AntColonyOptimization.cpp \
+         $(SRC_FOLDER)Graph.cpp $(SRC_FOLDER)TripleRomanDomination.cpp \
          $(SRC_FOLDER)util_functions.cpp
 
 OBJECTS= $(SOURCES:$(SRC_FOLDER)%.cpp=$(OBJ_FOLDER)%.gch)

@@ -209,18 +209,16 @@ void GeneticAlgorithm::run(size_t generations, std::vector<std::function<Chromos
    	size_t iteration {0};
    	size_t current_no_improvement_iteration {0};
    
-  	while ((iteration < generations) && (current_no_improvement_iteration < max_no_improvement_iterations)) {
+  	while (iteration < generations) {
    
 		this->population.swap(createNewPopulation());
 		
         current_best_solution = findBestSolution(population);  
 		
         ++iteration;
-        ++current_no_improvement_iteration;
 
         if (best_solution.fitness > current_best_solution.fitness) {
             best_solution = current_best_solution;       
-            current_no_improvement_iteration = 1;
         }
         
    	}

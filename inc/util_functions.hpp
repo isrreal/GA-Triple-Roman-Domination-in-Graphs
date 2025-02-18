@@ -18,8 +18,6 @@ bool feasible(const Graph&, const std::vector<int>&, size_t);
 
 Chromosome& feasibilityCheck(const Graph& , Chromosome&);
 
-void feasibilityCheck(const Graph& graph, std::vector<int>& solution);
-
 void decreaseLabels(const Graph&, std::vector<int>&);
 
 void decreaseLabel(const Graph&, std::vector<int>&, size_t);
