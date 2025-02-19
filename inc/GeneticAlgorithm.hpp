@@ -21,7 +21,6 @@ class GeneticAlgorithm {
         float elitism_rate;
         float crossover_rate;
         size_t tournament_population_size;
-		size_t max_no_improvement_iterations;
 
 
 		inline void createPopulation(std::vector<std::function<Chromosome(const Graph&)>> generateChromosomeHeuristics,
@@ -30,12 +29,16 @@ class GeneticAlgorithm {
         inline std::vector<Chromosome>& createNewPopulation();    
         
      	inline void elitism(std::vector<Chromosome>& population, float elitism_rate);	
+     	
+     	inline void elitismClones(std::vector<Chromosome>& population, float elitism_rate);	
         
 		inline Chromosome onePointCrossOver(const Chromosome& chromosome1, const Chromosome& cromossomo2); 
                 	
     	inline Chromosome twoPointCrossOver(const Chromosome& chromosome1, const Chromosome& cromossomo2);
                 	
-        inline Chromosome& mutation(Chromosome& chromosome);
+        inline Chromosome& mutation1(Chromosome& chromosome);
+        
+        inline Chromosome& mutation2(Chromosome& chromosome);
         
 		inline const Chromosome& tournamentSelection(const std::vector<Chromosome>& population, size_t individuals_size);
 		
@@ -46,14 +49,13 @@ class GeneticAlgorithm {
 	public:
 		GeneticAlgorithm(Graph& graph, size_t population_size, size_t genes_size, size_t generations,
 			float mutation_rate, float elitism_rate, float crossover_rate,
-			size_t tournament_population_size, size_t max_no_improvement_iterations):
+			size_t tournament_population_size):
 			  population_size(population_size), genes_size(genes_size), 
 			  population(population_size), generations(generations), 
 			  graph(graph), best_solution(), 
 			  mutation_rate(mutation_rate), elitism_rate(elitism_rate),
 			  crossover_rate(crossover_rate),
-			  tournament_population_size(tournament_population_size),
-              max_no_improvement_iterations(max_no_improvement_iterations) {}               
+			  tournament_population_size(tournament_population_size) {}               
 
 		~GeneticAlgorithm() {}
 		

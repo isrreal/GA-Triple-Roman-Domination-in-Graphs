@@ -67,7 +67,13 @@ void GeneticAlgorithm::createPopulation(
 
 std::vector<Chromosome>& GeneticAlgorithm::createNewPopulation() {
 	std::vector<Chromosome> old_population = population;
-   	this->elitism(population, elitism_rate);
+   	if (getRandomFloat(0.0, 1.0) <= elitism_rate) {  		
+   		this->elitism(population, elitism_rate);
+   	}
+   	
+   	else {
+   		this->elitismClones(population, elitism_rate);
+   	}
     
     Chromosome selected1;
     Chromosome selected2;
@@ -85,14 +91,23 @@ std::vector<Chromosome>& GeneticAlgorithm::createNewPopulation() {
 		else {      
         	offspring = this->onePointCrossOver(selected1, selected2);     
     	}
-
-	    mutation(offspring);	    
+    	
+    	
+    	if (getRandomFloat(0.0, 1.0) <= mutation_rate) {  		
+	    	mutation1(offspring);	    
+		} 
+        
+		else {      
+	    	mutation2(offspring);	    
+    	}
     	
         population.emplace_back(offspring);       
     }
     
     return population;
 }
+
+// seleciona os `iterations` melhores indivíduos (com menor valor de aptidão (fitness))
 
 void GeneticAlgorithm::elitism(std::vector<Chromosome>& population, float elitism_rate) {
     size_t iterations { static_cast<size_t>(std::ceil(population.size() * elitism_rate)) };
@@ -104,8 +119,25 @@ void GeneticAlgorithm::elitism(std::vector<Chromosome>& population, float elitis
 	
 	population.resize(iterations);
 }
-   
-Chromosome& GeneticAlgorithm::mutation(Chromosome& chromosome) {	
+
+// clona o melhor individuo k vezes
+
+void GeneticAlgorithm::elitismClones(std::vector<Chromosome>& population, float elitism_rate) {
+    size_t iterations { static_cast<size_t>(std::ceil(population.size() * elitism_rate)) };
+	
+	Chromosome best_one { findBestSolution(population) };
+	
+	population.clear();
+	population.reserve(iterations);
+	
+	for (size_t i {0}; i < iterations; ++i) {
+		population.push_back(best_one);
+	}
+}
+
+// mutação podendo ocorrer em alguma posição do vetor de genes
+
+Chromosome& GeneticAlgorithm::mutation1(Chromosome& chromosome) {	
 	if (getRandomFloat(0.0, 1.0) < this->mutation_rate) {
 		std::vector<size_t> labels {0, 2, 3, 4};
 		size_t randomIndex { getRandomInt(0, genes_size - 1) };
@@ -115,6 +147,22 @@ Chromosome& GeneticAlgorithm::mutation(Chromosome& chromosome) {
 		feasibilityCheck(this->graph, chromosome);
 	}
 
+	return chromosome;   
+}
+
+// mutação podendo ocorrer em todos as posições do vetor de genes
+
+Chromosome& GeneticAlgorithm::mutation2(Chromosome& chromosome) {	
+	for (size_t i {0}; i < chromosome.genes.size(); ++i) {
+		if (getRandomFloat(0.0, 1.0) < this->mutation_rate) {
+			std::vector<size_t> labels {0, 2, 3, 4};
+			short random_label { static_cast<short>(getRandomInt(0, labels.size() - 1)) };
+				
+			chromosome.genes[i] = labels[random_label];
+			feasibilityCheck(this->graph, chromosome);
+		}
+	}
+	
 	return chromosome;   
 }
 
@@ -207,7 +255,6 @@ void GeneticAlgorithm::run(size_t generations, std::vector<std::function<Chromos
    	Chromosome best_solution { current_best_solution };
    
    	size_t iteration {0};
-   	size_t current_no_improvement_iteration {0};
    
   	while (iteration < generations) {
    

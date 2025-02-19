@@ -18,9 +18,9 @@ private:
 public:
     TripleRomanDomination(Graph& graph, size_t population_size, size_t genes_size, size_t generations,
                 float mutation_rate, float elitism_rate, float cross_over_rate,
-                float tournament_population_size, size_t max_no_improvement_iterations)
+                float tournament_population_size)
         : graph(std::move(graph)),
-          genetic_algorithm(graph, population_size, genes_size, generations, mutation_rate, elitism_rate, cross_over_rate, tournament_population_size, max_no_improvement_iterations) {}
+          genetic_algorithm(graph, population_size, genes_size, generations, mutation_rate, elitism_rate, cross_over_rate, tournament_population_size) {}
           
   	TripleRomanDomination() = default;
 

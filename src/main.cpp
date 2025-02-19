@@ -156,8 +156,7 @@ auto main(int argc, char** argv) -> int {
    	   	double graph_density { static_cast<double>(2 * graph.getSize()) / (graph.getOrder() * (graph.getOrder() - 1)) };
    	   	
     	TripleRomanDomination trd(graph, population_size, graph.getOrder(), generations,
-            	mutation_rate, elitism_rate, cross_over_rate, tournament_population_size,
-            	max_no_improvement_iterations);
+            	mutation_rate, elitism_rate, cross_over_rate, tournament_population_size);
 		 
 		printGeneticAlgorithmLog(heuristic);
         
