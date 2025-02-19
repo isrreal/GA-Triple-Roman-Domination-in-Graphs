@@ -38,22 +38,22 @@ void computeGeneticAlgorithm(TripleRomanDomination& trd, short heuristic, int up
     O objetivo é encontrar uma FDRT ótima, ou seja, uma atribuição de rótulos que minimize o peso total da função:  
     h(G) = ∑ h(v), para v ∈ V.  
 
-    Esse problema é NP-completo e possui aplicações em alocação de recursos, redes de comunicação e estratégias  
+    Este problema é NP-completo e possui aplicações em alocação de recursos, redes de comunicação e estratégias  
     militares, onde é necessário proteger ou cobrir um conjunto de elementos de forma eficiente.  
 
     ### Abordagem Computacional  
 
-    Esta implementação utiliza a meta-heurística de Algoritmos Genéticos (AG) para encontrar soluções viáveis  
-    de menor custo para o PDRT. A abordagem se baseia na Teoria da Evolução de Darwin, onde soluções mais adaptadas  
+    A implementação utiliza a meta-heurística de Algoritmos Genéticos (AG) para encontrar soluções viáveis  
+    de menor custo para o PDRT. A abordagem baseia-se na Teoria da Evolução de Darwin, onde soluções mais adaptadas  
     (com menor peso da função h) têm maior probabilidade de serem selecionadas para reprodução. O algoritmo faz uso  
     de operadores evolutivos como mutação, elitismo e cruzamento, além de introduzir variabilidade estocástica  
-    através de funções que geram valores pseudoaleatórios.  
+    por meio de funções que geram valores pseudoaleatórios.  
 
     ### Representação do Cromossomo  
     Um cromossomo é representado por um vetor de inteiros de tamanho |V| (ordem do grafo), onde cada posição  
     corresponde ao rótulo de um vértice. A aptidão (fitness) de um cromossomo é dada pela soma de seus rótulos.  
 
-    O estudo busca analisar o impacto da variação dos parâmetros do Algoritmo Genético no desempenho da busca  
+    O estudo visa analisar o impacto da variação dos parâmetros do Algoritmo Genético no desempenho da busca  
     por soluções ótimas, comparando diferentes configurações.  
 
     ### Etapas do Algoritmo  
@@ -95,16 +95,21 @@ void computeGeneticAlgorithm(TripleRomanDomination& trd, short heuristic, int up
          - Um cromossomo é selecionado aleatoriamente.  
          - Uma posição aleatória dentro desse cromossomo é escolhida.  
          - O rótulo nessa posição é alterado para um valor aleatório dentre {0, 2, 3, 4}.  
-         - Caso a nova solução não satisfaça as restrições da FDRT, a rotina `feasibilityCheck` é acionada para corrigir eventuais rótulos inválidos e garantir a viabilidade da solução.  
+         - Caso a nova solução não satisfaça as restrições da FDRT, a rotina `feasibilityCheck` é acionada para corrigir eventuais rótulos inválidos e garantir a viabilidade da solução.
+         
+         Alternativamente, um loop pode ser realizado por todos os rótulos do vetor de genes, alterando-os conforme  
+         o número aleatório gerado e a taxa de mutação.  
 
        - **Elitismo:** Garante que os melhores indivíduos sejam preservados entre gerações.  
          - A população é ordenada com base no valor de fitness de cada solução.  
          - Com base na taxa de elitismo e no tamanho da população, um número `k` de indivíduos é determinado.  
-         - Somente os `k` melhores indivíduos (os primeiros na população ordenada) são mantidos para a próxima geração, garantindo que as soluções mais promissoras não sejam perdidas.  
+         - Somente os `k` melhores indivíduos (os primeiros na população ordenada) são mantidos para a próxima geração, garantindo que as soluções mais promissoras não sejam perdidas.
+         
+         Alternativamente, os `k` clones dos melhores indivíduos podem ser mantidos para a próxima geração.  
 
     5. **Critério de Parada e Convergência**  
        O algoritmo evolui iterativamente até que um critério de parada seja atingido. Os principais critérios utilizados são:  
-       - Número máximo de gerações atingido.  (utilizado neste trabalho).
+       - Número máximo de gerações atingido (utilizado neste trabalho).
        - Melhor solução não melhora após um número determinado de gerações consecutivas.  
        - A diversidade da população se torna muito baixa, resultando em estagnação da evolução.  
 
@@ -118,6 +123,7 @@ void computeGeneticAlgorithm(TripleRomanDomination& trd, short heuristic, int up
     métodos de seleção e critérios de parada. Dessa forma, o algoritmo pode ser adaptado para diferentes  
     instâncias do problema e comparado com outras técnicas de otimização heurística e meta-heurística.  
 */
+
 
 
 auto main(int argc, char** argv) -> int {
