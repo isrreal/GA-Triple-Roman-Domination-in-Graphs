@@ -141,7 +141,6 @@ auto main(int argc, char** argv) -> int {
         constexpr float mutation_rate {0.5362};
         constexpr float cross_over_rate {0.4095};
         size_t tournament_population_size {9};
-        constexpr size_t max_no_improvement_iterations {79};      
         
         int upper_bound {0};
     	int lower_bound {0};
