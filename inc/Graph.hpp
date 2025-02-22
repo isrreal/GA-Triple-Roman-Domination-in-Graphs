@@ -24,6 +24,7 @@ private:
     
 public:	
     Graph(const std::string& filename);
+    Graph(size_t order, float probabilityOfEdge);
     Graph(size_t order);	
     Graph(const Graph& graph);
 

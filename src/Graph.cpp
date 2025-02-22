@@ -1,5 +1,43 @@
 #include "Graph.hpp"
 
+Graph::Graph(size_t order, float probabilityOfEdge) {
+    this->order = order;
+    this->size = 0;
+
+    size_t connectedVertex = 0;
+    float probability = 0.0;
+
+    std::random_device randomNumber;
+    std::mt19937 seed(randomNumber());
+    std::uniform_int_distribution<int> gap(0, order - 1);
+    std::uniform_real_distribution<float> probabilityGap(0.0, 1.0);
+
+    for (size_t i = 0; i < order; ++i) {
+        adjList[i] = {};
+    }
+
+    for (size_t i = 0; i < order; ++i) {
+        connectedVertex = gap(seed);
+
+        while (i == connectedVertex) {
+            connectedVertex = gap(seed);
+		}
+		
+        if (!edgeExists(i, connectedVertex)) {
+            addEdge(i, connectedVertex);
+        }
+
+        for (size_t j = i + 1; j < order; ++j) {
+            if (!edgeExists(i, j)) {
+                probability = probabilityGap(seed);
+                if (probabilityOfEdge >= probability) {
+                    addEdge(i, j);
+                }
+           }
+        }
+    }
+}
+
 Graph::Graph(const std::string& filename): 
 	order(0), size(0) {
 	

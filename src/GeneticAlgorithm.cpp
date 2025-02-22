@@ -58,55 +58,6 @@ void GeneticAlgorithm::createPopulation(
 }
 
 
-/**
- * @brief Generates a new population by crossing over Chromosomes from the current population.
- *     
- * 
- * @return std::vector<Chromosome>& A new population of Chromosomes.
- */
-
-std::vector<Chromosome>& GeneticAlgorithm::createNewPopulation() {
-	std::vector<Chromosome> old_population = population;
-   	if (getRandomFloat(0.0, 1.0) <= elitism_rate) {  		
-   		this->elitism(population, elitism_rate);
-   	}
-   	
-   	else {
-   		this->elitismClones(population, elitism_rate);
-   	}
-    
-    Chromosome selected1;
-    Chromosome selected2;
-    Chromosome offspring;
-    
-    while (population.size() < population_size) {          
-        selected1 = tournamentSelection(old_population, tournament_population_size); 
-        
-        selected2 = tournamentSelection(old_population, tournament_population_size);      
-
-       	if (getRandomFloat(0.0, 1.0) <= crossover_rate) {  		
-        	offspring = this->twoPointCrossOver(selected1, selected2);
-		} 
-        
-		else {      
-        	offspring = this->onePointCrossOver(selected1, selected2);     
-    	}
-    	
-    	
-    	if (getRandomFloat(0.0, 1.0) <= mutation_rate) {  		
-	    	mutation1(offspring);	    
-		} 
-        
-		else {      
-	    	mutation2(offspring);	    
-    	}
-    	
-        population.emplace_back(offspring);       
-    }
-    
-    return population;
-}
-
 // seleciona os `iterations` melhores indivíduos (com menor valor de aptidão (fitness))
 
 void GeneticAlgorithm::elitism(std::vector<Chromosome>& population, float elitism_rate) {
@@ -240,35 +191,121 @@ Chromosome GeneticAlgorithm::findBestSolution(const std::vector<Chromosome>& pop
 
 	return best_solution; 
 }
+
+/**
+ * @brief Generates a new population by crossing over Chromosomes from the current population.
+ *     
+ * 
+ * @return std::vector<Chromosome>& A new population of Chromosomes.
+ */
+
+std::vector<Chromosome>& GeneticAlgorithm::createNewPopulation(bool flag_elitism, bool flag_selection, bool flag_crossover, bool flag_mutation) {
+	std::vector<Chromosome> old_population = population;
+	
+   	if (flag_elitism == true) {  		
+   		this->elitism(population, elitism_rate);
+   	}
+   	
+   	else {
+   		this->elitismClones(population, elitism_rate);
+   	}
+    
+    Chromosome selected1;
+    Chromosome selected2;
+    Chromosome offspring;
+    
+    while (population.size() < population_size) {
+       	if (flag_selection == true) {  		
+        	selected1 = tournamentSelection(old_population, tournament_population_size);
+        	selected2 = tournamentSelection(old_population, tournament_population_size);
+        }
+        
+        else {
+    		selected1 = old_population[getRandomInt(0, old_population.size() - 1)];
+    		selected2 = old_population[getRandomInt(0, old_population.size() - 1)];
+        }
+
+       	if (flag_crossover == true) {  		
+        	offspring = this->twoPointCrossOver(selected1, selected2);
+		} 
+        
+		else {      
+        	offspring = this->onePointCrossOver(selected1, selected2);     
+    	}
+    	
+    	if (flag_mutation == true) {  		
+	    	mutation1(offspring);	    
+		} 
+        
+		else {      
+	    	mutation2(offspring);	    
+    	}
+    	
+        population.emplace_back(offspring);       
+    }
+    
+    return population;
+}
 		
 // public methods 
 
 size_t GeneticAlgorithm::getGenerations() { return generations; }
 
-std::vector<int> GeneticAlgorithm::getBestSolution() { return best_solution; }
+size_t GeneticAlgorithm::getBestFitness() { return best_fitness; }
 
-void GeneticAlgorithm::run(size_t generations, std::vector<std::function<Chromosome(const Graph&)>> heuristics, size_t chosen_heuristic) { 
-   	this->createPopulation(heuristics, graph, chosen_heuristic);
+size_t GeneticAlgorithm::getFitnessMean() { return fitness_mean; }
+
+size_t GeneticAlgorithm::getFitnessSTD() { return fitness_std; }
+
+std::tuple<size_t, float, float> GeneticAlgorithm::run(size_t generations, 
+    std::vector<std::function<Chromosome(const Graph&)>> heuristics, 
+    size_t chosen_heuristic, bool flag_elitism, bool flag_selection, bool flag_crossover, bool flag_mutation) { 
+	
+    this->createPopulation(heuristics, graph, chosen_heuristic);
    
-	Chromosome current_best_solution { findBestSolution(population) };  
-   
-   	Chromosome best_solution { current_best_solution };
-   
-   	size_t iteration {0};
-   
-  	while (iteration < generations) {
-   
-		this->population.swap(createNewPopulation());
-		
+    Chromosome current_best_solution { findBestSolution(population) };  
+    Chromosome best_solution { current_best_solution };
+    size_t generation {0};
+
+    float best_fitness { best_solution.fitness };
+    float fitness_mean {0.0f};
+    float fitness_std {0.0f};
+
+    while (generation < generations) {
+        this->population.swap(createNewPopulation(flag_elitism, flag_selection, flag_crossover, flag_mutation));
+        
         current_best_solution = findBestSolution(population);  
-		
-        ++iteration;
 
         if (best_solution.fitness > current_best_solution.fitness) {
             best_solution = current_best_solution;       
+            best_fitness = current_best_solution.fitness;
         }
-        
-   	}
 
+        // Cálculo da média da aptidão
+        float sum_fitness = 0.0f;
+        for (const auto& individual : population) {
+            sum_fitness += individual.fitness;
+        }
+        fitness_mean = sum_fitness / population.size();
+
+        // Cálculo da variância
+        float variance = 0.0f;
+        for (const auto& individual : population) {
+            variance += std::pow(individual.fitness - fitness_mean, 2);
+        }
+        variance /= population.size();
+
+        // Cálculo do desvio padrão
+        fitness_std = std::sqrt(variance);
+
+        ++generation;
+    }  
+	
     this->best_solution.swap(best_solution.genes);
+
+    return {best_fitness, fitness_mean, fitness_std};
 }
+
+std::vector<int> GeneticAlgorithm::getBestSolution() {
+	return best_solution;
+}		      

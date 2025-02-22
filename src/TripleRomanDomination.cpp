@@ -21,9 +21,7 @@
  *       em si é armazenada em `solution_genetic_algorithm`.
  */
  
-void TripleRomanDomination::runGeneticAlgorithm(short int heuristic) {  
-    this->genetic_algorithm_best_fitness = 0;
-
+void TripleRomanDomination::runGeneticAlgorithm(short int heuristic, bool flag_elitism, bool flag_selection, bool flag_crossover, bool flag_mutation) {  
     std::vector<std::function<Chromosome(const Graph&)>> heuristics;
     heuristics.reserve(3);
     
@@ -31,11 +29,21 @@ void TripleRomanDomination::runGeneticAlgorithm(short int heuristic) {
     heuristics.emplace_back(heuristic2);
     heuristics.emplace_back(heuristic3);
 
-   	genetic_algorithm.run(genetic_algorithm.getGenerations(), heuristics, heuristic);
+   	genetic_algorithm.run(genetic_algorithm.getGenerations(), heuristics, heuristic, flag_elitism, flag_selection, flag_crossover, flag_mutation);
     
-    solution_genetic_algorithm = genetic_algorithm.getBestSolution();
-    
-    this->genetic_algorithm_best_fitness = std::accumulate(solution_genetic_algorithm.begin(), solution_genetic_algorithm.end(), 0);
+    std::tie(this->genetic_algorithm_best_fitness, 
+     	this->genetic_algorithm_fitness_mean, 
+     	this->genetic_algorithm_fitness_std) = genetic_algorithm.run(
+     		genetic_algorithm.getGenerations(),
+     		heuristics,
+     		heuristic,
+     		flag_elitism,
+     		flag_selection,
+     		flag_crossover,
+     		flag_mutation);
+
+this->solution_genetic_algorithm = genetic_algorithm.getBestSolution();
+
 }
 
 /**
@@ -266,4 +274,12 @@ std::vector<int> TripleRomanDomination::getSolutionGeneticAlgorithm() {
 
 size_t TripleRomanDomination::getGeneticAlgorithmBestFitness() {
     return this->genetic_algorithm_best_fitness;
+}
+
+float TripleRomanDomination::getGeneticAlgorithmFitnessMean() {
+    return this->genetic_algorithm_fitness_mean;
+}
+
+float TripleRomanDomination::getGeneticAlgorithmFitnessSTD() {
+    return this->genetic_algorithm_fitness_std;
 }

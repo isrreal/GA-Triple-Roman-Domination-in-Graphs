@@ -5,6 +5,7 @@
 #include <random>
 #include <vector>
 #include <functional>
+#include <tuple>
 #include "Chromosome.hpp"
 #include "util_functions.hpp"
 
@@ -16,17 +17,21 @@ class GeneticAlgorithm {
 	    size_t generations;
         Graph graph;
         std::vector<int> best_solution;
+        float best_fitness;
+        float fitness_mean;
+        float fitness_std;
         
-        float mutation_rate;
         float elitism_rate;
+        float selection_rate;
         float crossover_rate;
+        float mutation_rate;
         size_t tournament_population_size;
 
 
 		inline void createPopulation(std::vector<std::function<Chromosome(const Graph&)>> generateChromosomeHeuristics,
 		 	const Graph& graph, size_t heuristic);
 	
-        inline std::vector<Chromosome>& createNewPopulation();    
+        inline std::vector<Chromosome>& createNewPopulation(bool flag_elitism, bool flag_selection, bool flag_crossover, bool flag_mutation);    
         
      	inline void elitism(std::vector<Chromosome>& population, float elitism_rate);	
      	
@@ -48,20 +53,27 @@ class GeneticAlgorithm {
 
 	public:
 		GeneticAlgorithm(Graph& graph, size_t population_size, size_t genes_size, size_t generations,
-			float mutation_rate, float elitism_rate, float crossover_rate,
-			size_t tournament_population_size):
+			float elitism_rate, float selection_rate, float crossover_rate, float mutation_rate, size_t tournament_population_size):
 			  population_size(population_size), genes_size(genes_size), 
 			  population(population_size), generations(generations), 
-			  graph(graph), best_solution(), 
-			  mutation_rate(mutation_rate), elitism_rate(elitism_rate),
-			  crossover_rate(crossover_rate),
-			  tournament_population_size(tournament_population_size) {}               
+			  graph(graph), best_solution(), fitness_mean(0), fitness_std(0.0),
+	  		  elitism_rate(elitism_rate), crossover_rate(crossover_rate),
+	  		  mutation_rate(mutation_rate), tournament_population_size(tournament_population_size) {}               
 
 		~GeneticAlgorithm() {}
 		
 		size_t getGenerations();   
+		
+		size_t getBestFitness();
+
+		size_t getFitnessMean();
+
+		size_t getFitnessSTD();
+		
         std::vector<int> getBestSolution();		      
-        void run(size_t generations, std::vector<std::function<Chromosome(const Graph&)>>, size_t chosen_heuristic);
+        
+        std::tuple<size_t, float, float> run(size_t generations, std::vector<std::function<Chromosome(const Graph&)>>, size_t chosen_heuristic,
+        		bool flag_elitism, bool flag_selection , bool flag_crossover , bool flag_mutation);
 };	
 
 #endif

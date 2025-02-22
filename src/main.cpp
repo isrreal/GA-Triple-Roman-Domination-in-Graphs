@@ -5,31 +5,31 @@
 #include <chrono>
 
 void printGeneticAlgorithmLog(short heuristic) {
-	std::cout << "graph_name,graph_order,graph_size,graph_min_degree,graph_max_degree,fitness_heuristic_" << heuristic;
-    std::cout << ",lower_bound,upper_bound,graph_density,elapsed_time(seconds),is_feasible\n";
+	std::cout << "order,best_fitness,fitness_mean,fitness_std,elapsed_time(seconds)\n";
 }
 
-void computeGeneticAlgorithm(TripleRomanDomination& trd, short heuristic, int upper_bound, int lower_bound, double graph_density) {
+void computeGeneticAlgorithm(TripleRomanDomination& trd, short heuristic,
+	bool flag_elitism, bool flag_selection, bool flag_crossover, bool flag_mutation) {
+	
     std::chrono::duration<double> elapsed_time;
   
 	auto start = std::chrono::high_resolution_clock::now();
 	
-	trd.runGeneticAlgorithm(heuristic);
+	trd.runGeneticAlgorithm(heuristic, flag_elitism, flag_selection, flag_crossover, flag_mutation);
 	
 	auto end = std::chrono::high_resolution_clock::now();
 	
 	elapsed_time = end - start;
   	   
 	std::cout << trd.getGeneticAlgorithmBestFitness() << ',';
-	std::cout << lower_bound << ',';
-    std::cout << upper_bound << ',';  	
-    std::cout << graph_density << ',';
-	std::cout << elapsed_time.count() << ',';
-	std::cout << feasible(trd.getGraph(), trd.getSolutionGeneticAlgorithm()) << '\n';
+	std::cout << trd.getGeneticAlgorithmFitnessMean() << ',';
+	std::cout << trd.getGeneticAlgorithmFitnessSTD() << ',';
+
+	std::cout << elapsed_time.count() << '\n';
 }
 
 /*
-    O Problema de Dominação Romana Tripla (PDRT) é uma variante do problema clássico de dominação em grafos.  
+    O Problema de Dominação Romana Tripla (PDRT) é uma variante do problema clássico de dominação romana em grafos.  
     Dado um grafo G = (V, E), define-se uma função de rotulagem h : V → {0, 1, 2, 3, 4}, chamada de  
     Função de Dominação Romana Tripla (FDRT), que deve satisfazer a seguinte condição:  
     - Todo vértice v ∈ V deve possuir pelo menos um vizinho rotulado com 3, ou a soma dos rótulos de seus vizinhos  
@@ -79,105 +79,93 @@ void computeGeneticAlgorithm(TripleRomanDomination& trd, short heuristic, int up
 
        - **Heurística 4:**  
          Combina as três heurísticas anteriores, gerando a população inicial com 33% de cada abordagem.  
+         
+    1.1 A heurística usada:
+    	A heurística utilizada é a 4.
 
     2. **Avaliação de Aptidão**  
        Cada cromossomo é avaliado com base no peso total da FDRT. Soluções com menor custo são consideradas mais aptas.  
 
     3. **Seleção**  
-       Métodos como roleta viciada ou torneio são utilizados para escolher indivíduos para a próxima geração.  
+       (flag = 1): torneio são selecionados k individuos aleatorios da população para "brigarem" entre si e quem "vencer" será escolhido. O critério da vitória é quem tem o menor fitness
+       (flag = 0): Dois indivíduos da população são selecionados aleatoriamente.
 
     4. **Operadores Genéticos**  
        - **Cruzamento:** Combina genes de dois indivíduos para gerar novas soluções. Pode ser realizado de duas formas:  
-         - **Cruzamento de um ponto:** Uma posição aleatória é selecionada no vetor de genes, e todos os genes a partir dessa posição são permutados entre os indivíduos.  
-         - **Cruzamento de dois pontos:** Duas posições aleatórias são escolhidas, e todos os genes entre essas posições são trocados entre os cromossomos.  
+         1: **Cruzamento de dois pontos (flag = 1): ** Duas posições aleatórias são escolhidas, e todos os genes entre essas posições são trocados entre os cromossomos.    
+         0:  **Cruzamento de um ponto (flag = 0):** Uma posição aleatória é selecionada no vetor de genes, e todos os genes a partir dessa posição são permutados entre os indivíduos.
 
        - **Mutação:** Pequenas alterações são aplicadas a um indivíduo para manter a diversidade da população. O processo ocorre da seguinte forma:  
-         - Um cromossomo é selecionado aleatoriamente.  
-         - Uma posição aleatória dentro desse cromossomo é escolhida.  
-         - O rótulo nessa posição é alterado para um valor aleatório dentre {0, 2, 3, 4}.  
+         - **Mutação Constante (flag = 1):** Uma posição do cromossomo (vetor de genes) é selecionada aleatoriamente, tendo seu valor alterado caso um número aleatório sorteado entre 0 e 1 supere a taxa de mutação definida nas entradas do algoritmo. O rótulo nessa posição é alterado para um valor aleatório dentre {0, 2, 3, 4}.  
+         - **Mutação Linear (flag = 0):** O rótulo nessa posição é alterado para um valor aleatório dentre {0, 2, 3, 4} caso o valor de um número gerado entre 0 e 1 ultrapassar a taxa de mutação.  
          - Caso a nova solução não satisfaça as restrições da FDRT, a rotina `feasibilityCheck` é acionada para corrigir eventuais rótulos inválidos e garantir a viabilidade da solução.
-         
-         Alternativamente, um loop pode ser realizado por todos os rótulos do vetor de genes, alterando-os conforme  
-         o número aleatório gerado e a taxa de mutação.  
 
        - **Elitismo:** Garante que os melhores indivíduos sejam preservados entre gerações.  
-         - A população é ordenada com base no valor de fitness de cada solução.  
-         - Com base na taxa de elitismo e no tamanho da população, um número `k` de indivíduos é determinado.  
-         - Somente os `k` melhores indivíduos (os primeiros na população ordenada) são mantidos para a próxima geração, garantindo que as soluções mais promissoras não sejam perdidas.
+         - Possibilidade 1 (flag = 1): A população é ordenada com base no valor de fitness de cada solução. Com base na taxa de elitismo e no tamanho da população, um número `k` de indivíduos (representam os k primeiros, visto que está ordenado em ordem crescente com base em fitness).  
+         - Possibilidade 2 (flag = 0): `k` clones do melhor cromossomo da população são mantidos são mantidos para a próxima geração.
          
-         Alternativamente, os `k` clones dos melhores indivíduos podem ser mantidos para a próxima geração.  
+    5. **Critério de Parada**  
+       O algoritmo evolui iterativamente até que um critério de parada seja atingido. O critério utilizado é:  
+       - Número máximo de gerações atingido (utilizado neste trabalho).  
 
-    5. **Critério de Parada e Convergência**  
-       O algoritmo evolui iterativamente até que um critério de parada seja atingido. Os principais critérios utilizados são:  
-       - Número máximo de gerações atingido (utilizado neste trabalho).
-       - Melhor solução não melhora após um número determinado de gerações consecutivas.  
-       - A diversidade da população se torna muito baixa, resultando em estagnação da evolução.  
-
-    ### Conclusão  
-
-    O principal objetivo deste estudo é experimentar diferentes configurações de parâmetros do Algoritmo Genético  
-    e analisar seu impacto na convergência para soluções de menor custo. Essa abordagem pode ser estendida para  
-    outras variantes do problema de dominação e aplicações em otimização combinatória.  
-
-    A implementação foi projetada para ser modular e flexível, permitindo ajustes nos operadores genéticos,  
-    métodos de seleção e critérios de parada. Dessa forma, o algoritmo pode ser adaptado para diferentes  
-    instâncias do problema e comparado com outras técnicas de otimização heurística e meta-heurística.  
+    6. **Critérios de Análise das Soluções**  
+       As soluções são analisadas com base no melhor fitness, na média de fitness e no desvio padrão de fitness a cada execução do Algoritmo Genético.
 */
-
-
 
 auto main(int argc, char** argv) -> int {
 
-	// argumentos: caminho_do_grafo nome_do_grafo heurística(1-4)
-    if (argc > 3) {
-        Graph graph(argv[1]);
+    // argumentos: caminho_do_grafo nome_do_grafo flag_elitism flag_selection flag_crossover flag_mutation graph_order
+
+    if (argc > 6) {
+        Graph graph;
+
+        // se for 0, então é a comparação normal
+        bool part5 { std::stoi(argv[7]) > 0 ? true : false };
+
+        // pega o grafo do arquivo, senão, gera um com `graph_order`
+        if (part5) {
+        	graph = Graph(std::stoi(argv[7]), 0.5);
+        } 
         
+        else {
+            // grafo gerado aleatoriamente com (ordem, probabilidade de conexão entre arestas).
+            graph = Graph(argv[1]);
+        }
+
         if (graph.getOrder() == 0) {
             return -1;
         }
-                     
-    	constexpr size_t trial {15};
-    	
-    	// Genetic Algorithm parameters
-    	
-        size_t population_size { static_cast<size_t>(graph.getOrder() / 1) };
-        constexpr size_t generations {601};
-        short heuristic = std::stoi(argv[3]);
+
+        constexpr size_t trial {20};
+
+        // Genetic Algorithm parameters
+        size_t population_size {100};
+        constexpr size_t generations {1000};
+        short heuristic {4};
         constexpr float elitism_rate {0.4043};
+        constexpr float selection_rate {0.5};
+        constexpr float crossover_rate {0.4095};
         constexpr float mutation_rate {0.5362};
-        constexpr float cross_over_rate {0.4095};
         size_t tournament_population_size {9};
-        
-        int upper_bound {0};
-    	int lower_bound {0};
-    
-		upper_bound = computeRightUpperBound(graph, upper_bound);
 
-		lower_bound = computeRightLowerBound(graph, lower_bound);
+        // flags para teste
+        bool flag_elitism { std::stoi(argv[3]) };
+        bool flag_selection { std::stoi(argv[4]) }; 
+        bool flag_crossover { std::stoi(argv[5]) };
+        bool flag_mutation { std::stoi(argv[6]) };
 
-        size_t Delta { graph.getMaxDegree() };
-       	size_t delta { graph.getMinDegree() };
-       	
-   	   	double graph_density { static_cast<double>(2 * graph.getSize()) / (graph.getOrder() * (graph.getOrder() - 1)) };
-   	   	
-    	TripleRomanDomination trd(graph, population_size, graph.getOrder(), generations,
-            	mutation_rate, elitism_rate, cross_over_rate, tournament_population_size);
+        TripleRomanDomination trd(graph, population_size, graph.getOrder(), generations,
+            elitism_rate, selection_rate, crossover_rate, mutation_rate, tournament_population_size);
 		 
-		printGeneticAlgorithmLog(heuristic);
-        
-       	for (size_t i {0}; i < trial; ++i) {         	
-        	std::cout << argv[2] << ',';
-	        std::cout << graph.getOrder() << ',';
-	        std::cout << graph.getSize() << ',';
-	        std::cout << delta << ',';
-	        std::cout << Delta << ',';
-	        
-            computeGeneticAlgorithm(trd, heuristic, upper_bound, lower_bound, graph_density);       
- 		}
- 		
-    	return EXIT_SUCCESS;
-	}
-	
-	return -1;
-	
+        printGeneticAlgorithmLog(heuristic);
+
+        for (size_t i {0}; i < trial; ++i) {   
+            computeGeneticAlgorithm(trd, heuristic, flag_elitism, flag_selection, flag_crossover, flag_mutation);       
+        }
+
+        return EXIT_SUCCESS;
+    }
+
+    return -1;
 }
+
