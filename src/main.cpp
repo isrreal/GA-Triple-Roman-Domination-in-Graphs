@@ -111,6 +111,7 @@ void computeGeneticAlgorithm(TripleRomanDomination& trd, short heuristic,
 auto main(int argc, char** argv) -> int {
 
     // argumentos: caminho_do_grafo nome_do_grafo flag_elitism flag_selection flag_crossover flag_mutation graph_order
+    // graph order deve ser pelo menos 5.
 
     if (argc > 6) {
         Graph graph;
@@ -122,8 +123,6 @@ auto main(int argc, char** argv) -> int {
         // se for 0, então é umas das partes, 1 a 4.
         bool part5 { std::stoi(argv[7]) >= 10 ? true : false };
         
-        
-
         // pega o grafo do arquivo, senão, gera um com `graph_order`
         if (part5) {
 			graph = Graph(std::stoi(argv[7]), 0.5);
