@@ -27,7 +27,7 @@ run_flag_test() {
 
         # Executa o programa e salva a saída no arquivo CSV
         echo "Rodando com $FLAG_NAME = $flag_value"
-        ./app "/home/leggen-assis/Documents/faculdade/cadeiras/semestre-8/IA/T2/3RDF/input_files/random_graph11-order100-edge_probability-0.5.txt" "g100-.5" ${FLAGS[0]} ${FLAGS[1]} ${FLAGS[2]} ${FLAGS[3]} 0 > $OUTPUT_FILE
+        ./app "./input_file/random_graph11-order100-edge_probability-0.5.txt" "g100-.5" ${FLAGS[0]} ${FLAGS[1]} ${FLAGS[2]} ${FLAGS[3]} 0 > $OUTPUT_FILE
     done
 }
 
