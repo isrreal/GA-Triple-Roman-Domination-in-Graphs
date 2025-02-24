@@ -115,13 +115,9 @@ auto main(int argc, char** argv) -> int {
 
     if (argc > 6) {
         Graph graph;
-		
-		if (std::stoi(argv[7]) < 10) { 
-			std::cout << "Selecione um valor com pelo menos 10\n";
-			return -1;
-		}
+	
         // se for 0, então é umas das partes, 1 a 4.
-        bool part5 { std::stoi(argv[7]) >= 10 ? true : false };
+        bool part5 { std::stoi(argv[7]) > 0 ? true : false };
         
         // pega o grafo do arquivo, senão, gera um com `graph_order`
         if (part5) {
