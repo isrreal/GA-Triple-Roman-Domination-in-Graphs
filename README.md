@@ -59,19 +59,62 @@ Performance is evaluated based on:
 - Average fitness
 - Standard deviation of fitness values
 
-## How to Use
+# How to Use
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/isrreal/Triple-Roman-Domination-In-Graphs-meta-heuristics.git
-   ```
+## 1. Clone the Repository
+To get started, clone the repository using the following command:
+```bash
+git clone https://github.com/isrreal/Triple-Roman-Domination-In-Graphs-meta-heuristics.git
+```
 
-2. Run the code:
-   ```bash
-   # Syntax:
-   # ./app <graph_file> <graph_name> <flag_elitism> <flag_selection> <flag_crossover> <flag_mutation> <graph_order>
+## 2. Build the Project
+Navigate to the project directory and build the application using:
+```bash
+make
+```
 
-   # Example:
-   ./app graph.txt graph_name 1 0 1 0 0
-   ```
+## 3. Run the Application
+You can run the application in two ways: by providing a graph file or by generating a random graph.
+
+### Run with a Graph File
+Use the following syntax to run the application with a specific graph file:
+```bash
+./app <graph_file> <graph_name> <flag_elitism> <flag_selection> <flag_crossover> <flag_mutation> 0
+```
+#### Example:
+```bash
+./app graph.txt graph_name 1 0 1 0 0
+```
+
+### Generate a Random Graph
+To generate a random graph, specify the graph order (minimum of 5 vertices) instead of `0`:
+```bash
+./app <graph_file> <graph_name> <flag_elitism> <flag_selection> <flag_crossover> <flag_mutation> <graph_order>
+```
+#### Example:
+```bash
+./app random_graph.txt graph_name 1 0 1 0 5
+```
+
+## 4. Clean Temporary Files
+After running the application, you can remove temporary files with:
+```bash
+make clean
+```
+
+## Flags Explanation
+- `<flag_elitism>`: Elitism method flag.
+- `<flag_selection>`: Selection method flag.
+- `<flag_crossover>`: Crossover method flag.
+- `<flag_mutation>`: Mutation method flag.
+- `<graph_order>`: (Only for random graphs) Number of vertices, minimum value is 5.
+
+## Notes
+- Ensure that the `make` command runs successfully before executing the application.
+- If using a graph file, ensure that it is formatted correctly.
+- The output of the program will be displayed in the terminal or saved as needed.
+
+For more details, refer to the source code and documentation in the repository.
+
+
  
