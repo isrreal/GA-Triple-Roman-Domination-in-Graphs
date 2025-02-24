@@ -4,10 +4,6 @@
 #include "util_functions.hpp"
 #include <chrono>
 
-void printGeneticAlgorithmLog(short heuristic) {
-	std::cout << "order,best_fitness,fitness_mean,fitness_std,elapsed_time(seconds)\n";
-}
-
 void computeGeneticAlgorithm(TripleRomanDomination& trd, short heuristic,
 	bool flag_elitism, bool flag_selection, bool flag_crossover, bool flag_mutation) {
 	
@@ -118,13 +114,19 @@ auto main(int argc, char** argv) -> int {
 
     if (argc > 6) {
         Graph graph;
-
+		
+		if (std::stoi(argv[7]) < 10) { 
+			std::cout << "Selecione um valor com pelo menos 10\n";
+			return -1;
+		}
         // se for 0, então é umas das partes, 1 a 4.
-        bool part5 { std::stoi(argv[7]) > 0 ? true : false };
+        bool part5 { std::stoi(argv[7]) >= 10 ? true : false };
+        
+        
 
         // pega o grafo do arquivo, senão, gera um com `graph_order`
         if (part5) {
-        	graph = Graph(std::stoi(argv[7]), 0.5);
+			graph = Graph(std::stoi(argv[7]), 0.5);
         } 
         
         else {
@@ -143,21 +145,18 @@ auto main(int argc, char** argv) -> int {
         constexpr size_t generations {1000};
         constexpr short heuristic {4};
         constexpr float elitism_rate {0.4043};
-        constexpr float selection_rate {0.5};
         constexpr float crossover_rate {0.4095};
         constexpr float mutation_rate {0.5362};
         size_t tournament_population_size {9};
 
         // flags para teste
-        bool flag_elitism { std::stoi(argv[3]) };
-        bool flag_selection { std::stoi(argv[4]) }; 
-        bool flag_crossover { std::stoi(argv[5]) };
-        bool flag_mutation { std::stoi(argv[6]) };
+        bool flag_elitism = std::stoi(argv[3]);
+        bool flag_selection = std::stoi(argv[4]); 
+        bool flag_crossover = std::stoi(argv[5]);
+        bool flag_mutation = std::stoi(argv[6]);
 
         TripleRomanDomination trd(graph, population_size, graph.getOrder(), generations,
-            elitism_rate, selection_rate, crossover_rate, mutation_rate, tournament_population_size);
-		 
-        printGeneticAlgorithmLog(heuristic);
+            elitism_rate, crossover_rate, mutation_rate, tournament_population_size);
 
         for (size_t i {0}; i < trial; ++i) {   
             computeGeneticAlgorithm(trd, heuristic, flag_elitism, flag_selection, flag_crossover, flag_mutation);       

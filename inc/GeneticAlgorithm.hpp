@@ -22,7 +22,6 @@ class GeneticAlgorithm {
         float fitness_std;
         
         float elitism_rate;
-        float selection_rate;
         float crossover_rate;
         float mutation_rate;
         size_t tournament_population_size;
@@ -53,7 +52,7 @@ class GeneticAlgorithm {
 
 	public:
 		GeneticAlgorithm(Graph& graph, size_t population_size, size_t genes_size, size_t generations,
-			float elitism_rate, float selection_rate, float crossover_rate, float mutation_rate, size_t tournament_population_size):
+			float elitism_rate, float crossover_rate, float mutation_rate, size_t tournament_population_size):
 			  population_size(population_size), genes_size(genes_size), 
 			  population(population_size), generations(generations), 
 			  graph(graph), best_solution(), fitness_mean(0), fitness_std(0.0),

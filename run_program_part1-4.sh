@@ -24,10 +24,11 @@ run_flag_test() {
 
         # Nome do arquivo de saída
         OUTPUT_FILE="$FLAG_DIR/${FLAG_NAME}_${flag_value}.csv"
+        echo "best_fitness,fitness_mean,fitness_std,elapsed_time(seconds)" > $OUTPUT_FILE
 
         # Executa o programa e salva a saída no arquivo CSV
         echo "Rodando com $FLAG_NAME = $flag_value"
-        ./app "./input_file/random_graph11-order100-edge_probability-0.5.txt" "g100-.5" ${FLAGS[0]} ${FLAGS[1]} ${FLAGS[2]} ${FLAGS[3]} 0 > $OUTPUT_FILE
+        ./app "./input_file/random_graph11-order100-edge_probability-0.5.txt" "g100-.5" ${FLAGS[0]} ${FLAGS[1]} ${FLAGS[2]} ${FLAGS[3]} 0 >> $OUTPUT_FILE
     done
 }
 

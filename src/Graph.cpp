@@ -219,3 +219,13 @@ std::ostream& operator<< (std::ostream& os, const Graph& graph) {
  	   
     return os;
 }
+
+Graph& Graph::operator=(const Graph& graph) {
+	if (this != &graph) { 
+	    order = graph.order;
+	    size = graph.size;
+	    adjList = graph.adjList; 
+	}
+	
+	return *this;
+}

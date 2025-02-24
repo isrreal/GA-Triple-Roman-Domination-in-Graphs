@@ -4,9 +4,9 @@
 #include <iostream>
 #include <random>
 #include <algorithm>
-#include <list>
 #include <unordered_map>
 #include <queue>
+#include <vector>
 #include <sstream>
 #include <fstream>
 
@@ -30,7 +30,7 @@ public:
 
     Graph() = default;
     ~Graph() = default;
- 	
+   
     size_t getOrder() const;
     size_t getSize() const;
     size_t getVertexDegree(size_t vertex) const;
@@ -50,6 +50,8 @@ public:
     void deleteAdjacencyList(size_t vertex);
     
     friend std::ostream& operator<< (std::ostream& os, const Graph& graph);
+    
+    Graph& operator=(const Graph& other);
 };
 
 #endif

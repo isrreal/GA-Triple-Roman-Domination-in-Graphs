@@ -361,7 +361,7 @@ std::tuple<size_t, float, float> GeneticAlgorithm::run(size_t generations,
     Chromosome best_solution { current_best_solution };
     size_t generation {0};
 
-    float best_fitness { best_solution.fitness };
+    size_t best_fitness { best_solution.fitness };
     float fitness_mean {0.0f};
     float fitness_std {0.0f};
 
