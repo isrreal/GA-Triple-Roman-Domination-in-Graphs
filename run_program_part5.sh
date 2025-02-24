@@ -21,7 +21,7 @@ for order in {10..100..10}; do  # Ajuste o intervalo e incremento conforme neces
     echo "Rodando com ordem = $order"
 
     # Executa o algoritmo e redireciona a saída para um arquivo temporário
-    ./app "/home/leggen-assis/Documents/faculdade/cadeiras/semestre-8/IA/T2/3RDF/input_files/random_graph11-order100-edge_probability-0.5.txt" "g100-.5" $FLAG_ELITISM $FLAG_SELECTION $FLAG_CROSSOVER $FLAG_MUTATION $order > temp_output.txt
+    ./app "" "" $FLAG_ELITISM $FLAG_SELECTION $FLAG_CROSSOVER $FLAG_MUTATION $order > temp_output.txt
 
     # Adiciona a ordem como a primeira coluna e salva no arquivo CSV
     awk -v order="$order" '{print order "," $0}' temp_output.txt >> $OUTPUT_FILE
