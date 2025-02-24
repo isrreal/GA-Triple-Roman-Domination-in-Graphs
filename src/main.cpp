@@ -119,7 +119,7 @@ auto main(int argc, char** argv) -> int {
     if (argc > 6) {
         Graph graph;
 
-        // se for 0, então é a comparação normal
+        // se for 0, então é umas das partes, 1 a 4.
         bool part5 { std::stoi(argv[7]) > 0 ? true : false };
 
         // pega o grafo do arquivo, senão, gera um com `graph_order`
@@ -139,9 +139,9 @@ auto main(int argc, char** argv) -> int {
         constexpr size_t trial {20};
 
         // Genetic Algorithm parameters
-        size_t population_size {100};
+        constexpr size_t population_size {100};
         constexpr size_t generations {1000};
-        short heuristic {4};
+        constexpr short heuristic {4};
         constexpr float elitism_rate {0.4043};
         constexpr float selection_rate {0.5};
         constexpr float crossover_rate {0.4095};

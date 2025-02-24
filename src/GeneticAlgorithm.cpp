@@ -1,13 +1,18 @@
 #include "GeneticAlgorithm.hpp"
   
 /**
- * @brief Creates a population of chromosomes with a specific number of genes.
+ * @brief Cria uma população de cromossomos com um número específico de genes.
  * 
- * If a heuristic function is provided, the chromosomes are initialized using this heuristic.
- * Otherwise, chromosomes are initialized with random genes.
+ * Se funções heurísticas forem fornecidas, os cromossomos são inicializados utilizando essas heurísticas.
+ * Caso contrário, uma exceção é lançada.
  * 
- * @param heuristic A pointer to a function that generates chromosomes based on a graph.
- * @param graph Object to the graph used to initialize the chromosomes.
+ * @param generateChromosomeHeuristics Um vetor de funções heurísticas que geram cromossomos com base em um grafo.
+ * @param graph O grafo utilizado para inicializar os cromossomos.
+ * @param heuristic Um índice que define qual método heurístico deve ser utilizado:
+ *        - `1`: Usa a Heurística 1
+ *        - `2`: Usa a Heurística 2
+ *        - `3`: Usa a Heurística 3
+ *        - `4`: Usa uma combinação das Heurísticas 1, 2 e 3 em proporções iguais.
  */
 
 void GeneticAlgorithm::createPopulation(
@@ -58,7 +63,17 @@ void GeneticAlgorithm::createPopulation(
 }
 
 
-// seleciona os `iterations` melhores indivíduos (com menor valor de aptidão (fitness))
+/**
+ * **Elitismo:** Seleciona os melhores indivíduos da população com base no menor valor de aptidão (fitness),
+ * garantindo que apenas os melhores sejam preservados para a próxima geração.
+ * 
+ * 1. Ordena a população em ordem crescente de fitness.
+ * 2. Mantém apenas os `iterations` melhores indivíduos, onde `iterations` é calculado como uma fração 
+ *    do tamanho total da população (`elitism_rate`).
+ * 
+ * @param population     Vetor contendo os cromossomos da população atual.
+ * @param elitism_rate   Taxa de elitismo, ajudando a determinar a proporção de indivíduos que serão preservados.
+ */
 
 void GeneticAlgorithm::elitism(std::vector<Chromosome>& population, float elitism_rate) {
     size_t iterations { static_cast<size_t>(std::ceil(population.size() * elitism_rate)) };
@@ -71,7 +86,16 @@ void GeneticAlgorithm::elitism(std::vector<Chromosome>& population, float elitis
 	population.resize(iterations);
 }
 
-// clona o melhor individuo k vezes
+/**
+ * **Elitismo por clonagem:** Preserva o melhor indivíduo da população clonando-o múltiplas vezes.
+ * 
+ * 1. Encontra o melhor indivíduo da população.
+ * 2. Remove todos os outros indivíduos.
+ * 3. Clona o melhor indivíduo `iterations` vezes para preencher a nova população.
+ * 
+ * @param population     Vetor contendo os cromossomos da população atual.
+ * @param elitism_rate   Taxa de elitismo, ajuda a determinar quantas cópias do melhor indivíduo serão criadas.
+ */
 
 void GeneticAlgorithm::elitismClones(std::vector<Chromosome>& population, float elitism_rate) {
     size_t iterations { static_cast<size_t>(std::ceil(population.size() * elitism_rate)) };
@@ -86,7 +110,17 @@ void GeneticAlgorithm::elitismClones(std::vector<Chromosome>& population, float 
 	}
 }
 
-// mutação podendo ocorrer em alguma posição do vetor de genes
+/**
+ * **Mutação Constante**
+ * 
+ * - Um único gene do cromossomo é selecionado aleatoriamente e recebe um novo valor.
+ * - O novo valor é escolhido aleatoriamente dentro do conjunto de rótulos possíveis `{0, 2, 3, 4}`.
+ * - Após a mutação, verifica-se se o cromossomo continua viável utilizando a função `feasibilityCheck`.
+ * - A mutação ocorre com uma probabilidade definida por `mutation_rate`.
+ * 
+ * @param chromosome Cromossomo a ser mutado.
+ * @return O cromossomo mutado.
+ */
 
 Chromosome& GeneticAlgorithm::mutation1(Chromosome& chromosome) {	
 	if (getRandomFloat(0.0, 1.0) < this->mutation_rate) {
@@ -101,7 +135,17 @@ Chromosome& GeneticAlgorithm::mutation1(Chromosome& chromosome) {
 	return chromosome;   
 }
 
-// mutação podendo ocorrer em todos as posições do vetor de genes
+/**
+ * **Mutação Linear**
+ * 
+ * - Cada gene do cromossomo tem uma chance de ser mutado, baseada na taxa `mutation_rate`.
+ * - Se um gene for selecionado para mutação, ele recebe um novo valor aleatório do conjunto `{0, 2, 3, 4}`.
+ * - Após cada mutação, a viabilidade do cromossomo é verificada usando `feasibilityCheck`.
+ * - Essa abordagem permite um maior grau de variação na população genética.
+ * 
+ * @param chromosome Cromossomo a ser mutado.
+ * @return O cromossomo mutado.
+ */
 
 Chromosome& GeneticAlgorithm::mutation2(Chromosome& chromosome) {	
 	for (size_t i {0}; i < chromosome.genes.size(); ++i) {
@@ -116,6 +160,17 @@ Chromosome& GeneticAlgorithm::mutation2(Chromosome& chromosome) {
 	
 	return chromosome;   
 }
+
+
+/**
+ * **Cruzamento de um ponto (one-point crossover)**: 
+ * Uma posição aleatória é selecionada no vetor de genes. Todos os genes a partir essa posição 
+ * são trocados entre os cromossomos, criando a prole.
+ * 
+ * @param chromosome1 Primeiro cromossomo pai.
+ * @param chromosome2 Segundo cromossomo pai.
+ * @return O melhor cromossomo resultante do cruzamento.
+ */
 
 Chromosome GeneticAlgorithm::onePointCrossOver(const Chromosome& chromosome1, const Chromosome& chromosome2) {
   
@@ -133,6 +188,16 @@ Chromosome GeneticAlgorithm::onePointCrossOver(const Chromosome& chromosome1, co
     
    return chooseBestSolution(solution1, solution2);
 }
+
+/**
+ * **Cruzamento de dois pontos (two-point crossover)**: 
+ * Duas posições aleatórias são escolhidas dentro do vetor de genes. Todos os genes entre essas 
+ * duas posições são trocados entre os cromossomos, permitindo uma recombinação mais complexa.
+ * 
+ * @param chromosome1 Primeiro cromossomo pai.
+ * @param chromosome2 Segundo cromossomo pai.
+ * @return O melhor cromossomo resultante do cruzamento.
+ */
 
 Chromosome GeneticAlgorithm::twoPointCrossOver(const Chromosome& chromosome1, const Chromosome& chromosome2) {
 	size_t range1 { getRandomInt(0, genes_size - 1) };
@@ -154,6 +219,18 @@ Chromosome GeneticAlgorithm::twoPointCrossOver(const Chromosome& chromosome1, co
 
 	return chooseBestSolution(solution1, solution2);
 }
+
+/**
+ * Realiza a seleção por torneio, escolhendo aleatoriamente um subconjunto de indivíduos da população
+ * e retornando aquele com o menor valor de fitness.
+ * 
+ * 1. **Seleção Aleatória**: `individuals_size` indivíduos são escolhidos aleatoriamente da população.
+ * 2. **Comparação**: O indivíduo com o menor valor de fitness dentro do subconjunto selecionado é escolhido como vencedor.
+ * 
+ * @param population        Vetor contendo todos os cromossomos da geração atual.
+ * @param individuals_size  Quantidade de indivíduos que participarão do torneio.
+ * @return O cromossomo com o menor valor de fitness dentro do grupo selecionado.
+ */
 
 const Chromosome& GeneticAlgorithm::tournamentSelection(const std::vector<Chromosome>& population, size_t individuals_size) {  
     std::vector<size_t> tournament_individuals_indices; 
@@ -193,11 +270,26 @@ Chromosome GeneticAlgorithm::findBestSolution(const std::vector<Chromosome>& pop
 }
 
 /**
- * @brief Generates a new population by crossing over Chromosomes from the current population.
- *     
+ * Gera uma nova população aplicando operadores genéticos conforme os parâmetros especificados.
  * 
- * @return std::vector<Chromosome>& A new population of Chromosomes.
+ * 1. **Elitismo**: Se ativado, preserva os melhores indivíduos da população atual com base na taxa de elitismo. 
+ *    Caso contrário, uma variação com clones é aplicada.
+ * 2. **Seleção**: Dois cromossomos são escolhidos da população inicial. A seleção pode ser feita pelo método de torneio 
+ *    ou aleatoriamente.
+ * 3. **Crossover**: Aplica o operador de cruzamento para gerar um novo cromossomo. O cruzamento pode ser de dois pontos 
+ *    ou de um ponto, dependendo da configuração.
+ * 4. **Mutação**: Introduz variações no cromossomo gerado para aumentar a diversidade genética. Pode ser aplicada 
+ *    uma mutação de um ponto ou uma mutação linear.
+ * 5. **Atualização da população**: A nova geração é formada a partir dos indivíduos resultantes dessas operações, garantindo 
+ *    que a população mantenha um tamanho constante.
+ * 
+ * @param flag_elitism   Indica qual estratégia de elitismo será aplicada.
+ * @param flag_selection Define o método de seleção (torneio ou aleatório).
+ * @param flag_crossover Determina o tipo de crossover a ser utilizado.
+ * @param flag_mutation  Define qual técnica de mutação será aplicada.
+ * @return A nova população após a aplicação dos operadores genéticos.
  */
+
 
 std::vector<Chromosome>& GeneticAlgorithm::createNewPopulation(bool flag_elitism, bool flag_selection, bool flag_crossover, bool flag_mutation) {
 	std::vector<Chromosome> old_population = population;
@@ -257,6 +349,8 @@ size_t GeneticAlgorithm::getFitnessMean() { return fitness_mean; }
 
 size_t GeneticAlgorithm::getFitnessSTD() { return fitness_std; }
 
+// retorna uma tupla contendo: melhor fitness, média e desvio padrão de fitness, respectivamente.
+
 std::tuple<size_t, float, float> GeneticAlgorithm::run(size_t generations, 
     std::vector<std::function<Chromosome(const Graph&)>> heuristics, 
     size_t chosen_heuristic, bool flag_elitism, bool flag_selection, bool flag_crossover, bool flag_mutation) { 
@@ -286,6 +380,7 @@ std::tuple<size_t, float, float> GeneticAlgorithm::run(size_t generations,
         for (const auto& individual : population) {
             sum_fitness += individual.fitness;
         }
+        
         fitness_mean = sum_fitness / population.size();
 
         // Cálculo da variância
@@ -293,6 +388,7 @@ std::tuple<size_t, float, float> GeneticAlgorithm::run(size_t generations,
         for (const auto& individual : population) {
             variance += std::pow(individual.fitness - fitness_mean, 2);
         }
+        
         variance /= population.size();
 
         // Cálculo do desvio padrão
